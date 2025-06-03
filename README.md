@@ -80,7 +80,7 @@ I'm a **2nd-year B.Tech student** majoring in **Artificial Intelligence and Data
 
 - 📧 Email: m.akassh07@gmail.com
 - 📱 Telegram: 9789744339
-- 🌐 Portfolio: [akassh.me](https://akassh.me)
+- 🌐 Portfolio: https://akassh-m.github.io/web_profile/
 - 📸 Instagram: [@akassh_m_07](https://www.instagram.com/akassh_m_07)
 
 ---
