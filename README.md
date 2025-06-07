@@ -70,6 +70,7 @@ I'm a **2nd-year B.Tech student** majoring in **Artificial Intelligence and Data
 ### 🏆 Competitive Programming
 
 - 🧠 Strong at problem-solving and data structures
+- 💥 LeetCode - **KNIGHT⚔️**
 - 💥 LeetCode Contest Rating: **1800+**
 - ⚔️ Practicing on: LeetCode, Codeforces, AtCoder
 - 🧩 Focused on algorithms, math, and graphs
