@@ -5,7 +5,7 @@
   <a href="mailto:m.akassh07@gmail.com"><img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white"/></a>
   <a href="https://www.linkedin.com/in/akassh-m/"><img src="https://img.shields.io/badge/LinkedIn-blue?style=for-the-badge&logo=linkedin&logoColor=white"/></a>
   <a href="https://t.me/9789744339"><img src="https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white"/></a>
-  <a href="https://akassh-m.github.io/web_profile/"><img src="https://img.shields.io/badge/Portfolio-akassh.me-orange?style=for-the-badge"/></a>
+  <a href="ttps://akassh-m-portfolio.vercel.app/"><img src="https://img.shields.io/badge/Portfolio-akassh.me-orange?style=for-the-badge"/></a>
 </p>
 
 ---
@@ -81,7 +81,7 @@ I'm a **2nd-year B.Tech student** majoring in **Artificial Intelligence and Data
 
 - 📧 Email: m.akassh07@gmail.com
 - 📱 Telegram: 9789744339
-- 🌐 Portfolio: https://akassh-m.github.io/web_profile/
+- 🌐 Portfolio: ttps://akassh-m-portfolio.vercel.app/
 - 📸 Instagram: [@akassh_m_07](https://www.instagram.com/akassh_m_07)
 
 ---
