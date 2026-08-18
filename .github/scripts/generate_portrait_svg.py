@@ -28,7 +28,8 @@ BG2 = "#111722"
 FRAME = "#30363d"
 TITLE_TEXT = "#7d8590"
 INK = "#c9d1d9"
-CURSOR = "#00E8FF"
+# Cyan must NOT be used here. Use appropriate monochrome color.
+CURSOR = "#c9d1d9"
 
 ROW_DUR = 0.05
 STAGGER = 0.05
@@ -62,7 +63,7 @@ for ry, line in enumerate(lines):
     delay = ry * STAGGER
     safe = html.escape(line.ljust(COLS))
     
-    text = (f'<text xml:space="preserve" x="{PAD}" y="{y:.1f}" fill="{INK}" '
+    text = (f'<text xml:space="preserve" x="{PAD}" y="{y:.1f}" fill="{BG}" stroke="{INK}" stroke-width="0.8" paint-order="stroke fill" '
             f'font-size="{font_size:.1f}" textLength="{ART_W}" lengthAdjust="spacing">{safe}</text>')
 
     parts.append(

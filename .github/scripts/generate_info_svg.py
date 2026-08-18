@@ -17,9 +17,9 @@ COLOR_USER = "#ff7b72"
 COLOR_HOST = "#79c0ff"
 CURSOR = "#00E8FF"
 
-# Layout - target height ~ 1640 to match portrait
-CANVAS_W = 1200
-CANVAS_H = 1640
+# Layout - calculated to match portrait aspect ratio perfectly
+CANVAS_W = 1215
+CANVAS_H = 1140
 TITLEBAR_H = 50
 PAD = 40
 CELL_H = 70
@@ -29,14 +29,12 @@ LINES = [
     [("akassh", COLOR_USER), ("@", TEXT_MAIN), ("github", COLOR_HOST), (":~$ ./info.sh", TEXT_MAIN)],
     [("", TEXT_MAIN)],
     [("akassh", COLOR_USER), ("@", TEXT_MAIN), ("github", COLOR_HOST)],
-    [("--------------------------------", TEXT_MAIN)],
-    [("Role        ", COLOR_KEY), ("* Competitive Programmer", COLOR_VAL)],
-    [("            ", COLOR_KEY), ("* Building AI Systems", COLOR_VAL)],
-    [("            ", COLOR_KEY), ("* Backend Developer", COLOR_VAL)],
-    [("            ", COLOR_KEY), ("* LeetCode Guardian", COLOR_VAL)],
+    [("----------------", TEXT_MAIN)],
+    [("Role        ", COLOR_KEY), ("Competitive Programmer, Building AI Systems,", COLOR_VAL)],
+    [("            ", COLOR_KEY), ("Backend Developer", COLOR_VAL)],
     [("", TEXT_MAIN)],
-    [("Education   ", COLOR_KEY), ("* B.Tech Artificial Intelligence", COLOR_VAL)],
-    [("            ", COLOR_KEY), ("  & Data Science", COLOR_VAL)],
+    [("Education   ", COLOR_KEY), ("B.Tech Artificial Intelligence & Data Science", COLOR_VAL)],
+    [("            ", COLOR_KEY), ("Chennai Institute of Technology", COLOR_VAL)],
     [("", TEXT_MAIN)],
     [("Awards      ", COLOR_KEY), ("* H@CIT Cod-a-thon'26 Winner", COLOR_VAL)],
     [("            ", COLOR_KEY), ("* Statathon'26 by MOSPI — Runner-Up", COLOR_VAL)],
