@@ -61,7 +61,9 @@ for ry, line in enumerate(lines):
     y = art_top + ry * CELL_H + CELL_H * 0.74
     row_y = art_top + ry * CELL_H
     delay = ry * STAGGER
-    safe = html.escape(line.ljust(COLS))
+    # Invert the density for dark background rendering
+    trans = str.maketrans('█▓▒░', '░▒▓█')
+    safe = html.escape(line.ljust(COLS).translate(trans))
     
     text = (f'<text xml:space="preserve" x="{PAD}" y="{y:.1f}" fill="{INK}" '
             f'font-size="{font_size:.1f}" textLength="{ART_W}" lengthAdjust="spacing">{safe}</text>')
