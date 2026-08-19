@@ -47,44 +47,41 @@ cursor_times = []
 
 t_current = 0.0
 
+clip_values.append("0")
+clip_times.append("0")
+cursor_values.append(str(START_X))
+cursor_times.append("0")
+
 for line in lines:
     L = len(line)
     
-    # Typing
-    for i in range(L + 1):
-        t = t_current + i * TYPE_SPEED
-        clip_values.append(str(i * CHAR_W))
-        clip_times.append(f"{t / total_dur:.4f}")
-        cursor_values.append(str(START_X + i * CHAR_W))
-        cursor_times.append(f"{t / total_dur:.4f}")
-    
+    # End of typing
     t_current += L * TYPE_SPEED
-    
-    # Holding
     clip_values.append(str(L * CHAR_W))
-    clip_times.append(f"{(t_current + HOLD_TIME - 0.001) / total_dur:.4f}")
+    clip_times.append(f"{t_current / total_dur:.4f}")
     cursor_values.append(str(START_X + L * CHAR_W))
-    cursor_times.append(f"{(t_current + HOLD_TIME - 0.001) / total_dur:.4f}")
+    cursor_times.append(f"{t_current / total_dur:.4f}")
     
+    # End of holding
     t_current += HOLD_TIME
+    clip_values.append(str(L * CHAR_W))
+    clip_times.append(f"{t_current / total_dur:.4f}")
+    cursor_values.append(str(START_X + L * CHAR_W))
+    cursor_times.append(f"{t_current / total_dur:.4f}")
     
-    # Erasing
-    for i in range(L, -1, -1):
-        t = t_current + (L - i) * ERASE_SPEED
-        clip_values.append(str(i * CHAR_W))
-        clip_times.append(f"{t / total_dur:.4f}")
-        cursor_values.append(str(START_X + i * CHAR_W))
-        cursor_times.append(f"{t / total_dur:.4f}")
-        
+    # End of erasing
     t_current += L * ERASE_SPEED
-    
-    # Pausing
     clip_values.append("0")
-    clip_times.append(f"{(t_current + PAUSE_TIME - 0.001) / total_dur:.4f}")
+    clip_times.append(f"{t_current / total_dur:.4f}")
     cursor_values.append(str(START_X))
-    cursor_times.append(f"{(t_current + PAUSE_TIME - 0.001) / total_dur:.4f}")
+    cursor_times.append(f"{t_current / total_dur:.4f}")
     
+    # End of pausing
     t_current += PAUSE_TIME
+    clip_values.append("0")
+    clip_times.append(f"{t_current / total_dur:.4f}")
+    cursor_values.append(str(START_X))
+    cursor_times.append(f"{t_current / total_dur:.4f}")
 
 # Ensure last time is exactly 1
 clip_times[-1] = "1"
@@ -97,7 +94,7 @@ cursor_time_str = ";".join(cursor_times)
 
 svg.append('<clipPath id="type-clip">')
 svg.append(f'  <rect x="{START_X}" y="0" width="0" height="50">')
-svg.append(f'    <animate attributeName="width" values="{clip_val_str}" keyTimes="{clip_time_str}" dur="{total_dur:.3f}s" calcMode="discrete" repeatCount="indefinite" />')
+svg.append(f'    <animate attributeName="width" values="{clip_val_str}" keyTimes="{clip_time_str}" dur="{total_dur:.3f}s" calcMode="linear" repeatCount="indefinite" />')
 svg.append('  </rect>')
 svg.append('</clipPath>')
 
@@ -117,19 +114,19 @@ for i, line in enumerate(lines):
     # We use discrete display animation so they don't overlap
     if i == 0:
         times = [0, t_end_norm, 1]
-        vals = ["inline", "none", "none"]
+        vals = ["1", "0", "0"]
     elif i == len(lines) - 1:
         times = [0, t_start_norm, 1]
-        vals = ["none", "inline", "inline"]
+        vals = ["0", "1", "1"]
     else:
         times = [0, t_start_norm, t_end_norm, 1]
-        vals = ["none", "inline", "none", "none"]
+        vals = ["0", "1", "0", "0"]
         
     times_str = ";".join([f"{x:.4f}" for x in times])
     vals_str = ";".join(vals)
     
-    svg.append(f'  <text x="{START_X}" y="35" class="text" display="none">')
-    svg.append(f'    <animate attributeName="display" values="{vals_str}" keyTimes="{times_str}" dur="{total_dur:.3f}s" calcMode="discrete" repeatCount="indefinite" />')
+    svg.append(f'  <text x="{START_X}" y="35" class="text" opacity="0">')
+    svg.append(f'    <animate attributeName="opacity" values="{vals_str}" keyTimes="{times_str}" dur="{total_dur:.3f}s" calcMode="discrete" repeatCount="indefinite" />')
     svg.append(f'    {line}')
     svg.append('  </text>')
     
@@ -138,7 +135,7 @@ for i, line in enumerate(lines):
 svg.append('</g>')
 
 svg.append(f'<rect x="{START_X}" y="12" width="12" height="28" class="cursor">')
-svg.append(f'  <animate attributeName="x" values="{cursor_val_str}" keyTimes="{cursor_time_str}" dur="{total_dur:.3f}s" calcMode="discrete" repeatCount="indefinite" />')
+svg.append(f'  <animate attributeName="x" values="{cursor_val_str}" keyTimes="{cursor_time_str}" dur="{total_dur:.3f}s" calcMode="linear" repeatCount="indefinite" />')
 svg.append(f'  <animate attributeName="opacity" values="1;0;1;0" keyTimes="0;0.5;0.51;1" dur="0.8s" repeatCount="indefinite" />')
 svg.append('</rect>')
 

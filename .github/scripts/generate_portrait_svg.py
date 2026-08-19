@@ -1,25 +1,26 @@
 import os
 import sys
 import html
+import base64
+import struct
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-IN_FILE = os.path.join(HERE, "..", "..", "assets", "ascii-art.txt")
+IN_FILE = os.path.join(HERE, "..", "..", "assets", "ascii-art_img.png")
 OUT_FILE = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "..", "..", "assets", "portrait.svg")
 
-with open(IN_FILE, "r", encoding="utf-8") as f:
-    lines = [line.rstrip() for line in f.readlines()]
+with open(IN_FILE, "rb") as f:
+    data = f.read()
 
-COLS = max(len(line) for line in lines)
-ROWS = len(lines)
+png_w, png_h = struct.unpack('>LL', data[16:24])
+b64_data = base64.b64encode(data).decode('utf-8')
 
-CELL_W = 6.0
-CELL_H = 10.0
 PAD = 20
 TITLEBAR_H = 30
 STATUS_H = 30
 
-ART_W = COLS * CELL_W
-ART_H = ROWS * CELL_H
+ART_W = 1000
+ART_H = int(ART_W * (png_h / png_w))
+
 CANVAS_W = int(ART_W + PAD * 2)
 CANVAS_H = int(TITLEBAR_H + ART_H + STATUS_H + PAD)
 
@@ -28,11 +29,7 @@ BG2 = "#111722"
 FRAME = "#30363d"
 TITLE_TEXT = "#7d8590"
 INK = "#c9d1d9"
-# Cyan must NOT be used here. Use appropriate monochrome color.
 CURSOR = "#c9d1d9"
-
-ROW_DUR = 0.05
-STAGGER = 0.05
 
 parts = []
 parts.append(
@@ -55,32 +52,18 @@ parts.append(f'<text x="{CANVAS_W/2}" y="{TITLEBAR_H/2 + 4}" fill="{TITLE_TEXT}"
              f'text-anchor="middle">akassh@github: ~$ ./portrait.sh</text>')
 
 art_top = TITLEBAR_H + PAD * 0.35
-font_size = CELL_H * 0.95
 
-for ry, line in enumerate(lines):
-    y = art_top + ry * CELL_H + CELL_H * 0.74
-    row_y = art_top + ry * CELL_H
-    delay = ry * STAGGER
-    # Invert the density for dark background rendering
-    trans = str.maketrans('█▓▒░', '░▒▓█')
-    safe = html.escape(line.ljust(COLS).translate(trans))
-    
-    text = (f'<text xml:space="preserve" x="{PAD}" y="{y:.1f}" fill="{INK}" '
-            f'font-size="{font_size:.1f}" textLength="{ART_W}" lengthAdjust="spacing">{safe}</text>')
+TOTAL_DUR = 2.0
+parts.append(
+    f'<clipPath id="reveal">'
+    f'<rect x="{PAD}" y="{art_top}" height="{ART_H}" width="0">'
+    f'<animate attributeName="width" from="0" to="{ART_W}" begin="0.5s" '
+    f'dur="{TOTAL_DUR}s" fill="freeze"/></rect></clipPath>'
+)
 
-    parts.append(
-        f'<clipPath id="r{ry}"><rect x="{PAD}" y="{row_y:.1f}" height="{CELL_H}" width="0">'
-        f'<animate attributeName="width" from="0" to="{ART_W}" begin="{delay:.3f}s" '
-        f'dur="{ROW_DUR:.2f}s" fill="freeze"/></rect></clipPath>'
-    )
-    parts.append(f'<g clip-path="url(#r{ry})">{text}</g>')
-    parts.append(
-        f'<rect y="{row_y+1:.1f}" width="{CELL_W}" height="{CELL_H-2}" fill="{CURSOR}" opacity="0">'
-        f'<animate attributeName="x" from="{PAD}" to="{PAD+ART_W}" begin="{delay:.3f}s" '
-        f'dur="{ROW_DUR:.2f}s" fill="freeze"/>'
-        f'<set attributeName="opacity" to="0.85" begin="{delay:.3f}s"/>'
-        f'<set attributeName="opacity" to="0" begin="{delay+ROW_DUR:.3f}s"/></rect>'
-    )
+parts.append(f'<g clip-path="url(#reveal)">')
+parts.append(f'<image href="data:image/png;base64,{b64_data}" x="{PAD}" y="{art_top}" width="{ART_W}" height="{ART_H}" preserveAspectRatio="xMidYMid meet" />')
+parts.append(f'</g>')
 
 status_line_y = TITLEBAR_H + ART_H + PAD * 0.35
 status_y = status_line_y + 19
