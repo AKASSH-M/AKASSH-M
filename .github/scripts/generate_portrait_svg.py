@@ -63,7 +63,7 @@ for ry, line in enumerate(lines):
     delay = ry * STAGGER
     safe = html.escape(line.ljust(COLS))
     
-    text = (f'<text xml:space="preserve" x="{PAD}" y="{y:.1f}" fill="{BG}" stroke="{INK}" stroke-width="0.8" paint-order="stroke fill" '
+    text = (f'<text xml:space="preserve" x="{PAD}" y="{y:.1f}" fill="{INK}" '
             f'font-size="{font_size:.1f}" textLength="{ART_W}" lengthAdjust="spacing">{safe}</text>')
 
     parts.append(

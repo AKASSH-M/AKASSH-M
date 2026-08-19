@@ -13,114 +13,137 @@ lines = [
     "Code. Create. Evolve."
 ]
 
-duration_per_line = 3.5
-total_duration = duration_per_line * len(lines)
-char_width = 14.45  # Approximate width for Fira Code at 24px
+TYPE_SPEED = 0.06
+HOLD_TIME = 1.2
+ERASE_SPEED = 0.04
+PAUSE_TIME = 0.3
 
-svg = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 50" width="100%" height="50">']
+CHAR_W = 14.45
+START_X = 270
+
+total_dur = 0
+for line in lines:
+    total_dur += len(line) * TYPE_SPEED
+    total_dur += HOLD_TIME
+    total_dur += len(line) * ERASE_SPEED
+    total_dur += PAUSE_TIME
+
+svg = []
+svg.append(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 50" width="100%" height="50">')
 svg.append('<style>')
 svg.append('@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@600&amp;display=swap");')
 svg.append('.text { font-family: "Fira Code", monospace; font-size: 24px; fill: #00E5FF; font-weight: 600; }')
 svg.append('.prompt { font-family: "Fira Code", monospace; font-size: 24px; fill: #7d8590; font-weight: 600; }')
+svg.append('.cursor { fill: #00E5FF; }')
 svg.append('</style>')
 
 svg.append('<rect width="800" height="50" fill="transparent"/>')
+svg.append(f'<text x="250" y="35" class="prompt">&gt;</text>')
 
-svg.append('<text x="250" y="35" class="prompt">&gt;</text>')
+clip_values = []
+clip_times = []
+cursor_values = []
+cursor_times = []
 
-for i, line in enumerate(lines):
-    line_width = len(line) * char_width
+t_current = 0.0
+
+for line in lines:
+    L = len(line)
     
-    # Calculate the keyTimes over the total duration
-    t_start = i / len(lines)
-    t_type_end = (i + 0.25) / len(lines)
-    t_hold_end = (i + 0.75) / len(lines)
-    t_erase_end = (i + 0.90) / len(lines)
-    t_next = (i + 1.0) / len(lines)
+    # Typing
+    for i in range(L + 1):
+        t = t_current + i * TYPE_SPEED
+        clip_values.append(str(i * CHAR_W))
+        clip_times.append(f"{t / total_dur:.4f}")
+        cursor_values.append(str(START_X + i * CHAR_W))
+        cursor_times.append(f"{t / total_dur:.4f}")
     
-    # We need 0 everywhere else
-    values = f"0;0;{line_width};{line_width};0;0;0"
+    t_current += L * TYPE_SPEED
     
-    kt = []
-    if t_start > 0:
-        kt.append("0")
-    kt.append(f"{t_start:.4f}")
-    kt.append(f"{t_type_end:.4f}")
-    kt.append(f"{t_hold_end:.4f}")
-    kt.append(f"{t_erase_end:.4f}")
-    if t_next < 1.0:
-        kt.append(f"{t_next:.4f}")
-        kt.append("1")
-    else:
-        kt.append("1")
+    # Holding
+    clip_values.append(str(L * CHAR_W))
+    clip_times.append(f"{(t_current + HOLD_TIME - 0.001) / total_dur:.4f}")
+    cursor_values.append(str(START_X + L * CHAR_W))
+    cursor_times.append(f"{(t_current + HOLD_TIME - 0.001) / total_dur:.4f}")
     
-    # ensure we have 7 values in keyTimes if we have 7 values
-    # Let's dynamically build the values and keyTimes arrays
+    t_current += HOLD_TIME
     
-    val_arr = []
-    kt_arr = []
-    
-    if t_start > 0:
-        val_arr.append("0")
-        kt_arr.append("0")
+    # Erasing
+    for i in range(L, -1, -1):
+        t = t_current + (L - i) * ERASE_SPEED
+        clip_values.append(str(i * CHAR_W))
+        clip_times.append(f"{t / total_dur:.4f}")
+        cursor_values.append(str(START_X + i * CHAR_W))
+        cursor_times.append(f"{t / total_dur:.4f}")
         
-    val_arr.extend(["0", str(line_width), str(line_width), "0"])
-    kt_arr.extend([f"{t_start:.4f}", f"{t_type_end:.4f}", f"{t_hold_end:.4f}", f"{t_erase_end:.4f}"])
+    t_current += L * ERASE_SPEED
     
-    if t_next < 1.0:
-        val_arr.extend(["0", "0"])
-        kt_arr.extend([f"{t_next:.4f}", "1"])
-    else:
-        val_arr.append("0")
-        kt_arr.append("1")
+    # Pausing
+    clip_values.append("0")
+    clip_times.append(f"{(t_current + PAUSE_TIME - 0.001) / total_dur:.4f}")
+    cursor_values.append(str(START_X))
+    cursor_times.append(f"{(t_current + PAUSE_TIME - 0.001) / total_dur:.4f}")
     
-    val_str = ";".join(val_arr)
-    kt_str = ";".join(kt_arr)
-    
-    if t_start == 0:
-        kt_arr_op = [0, t_erase_end, 1]
-        val_arr_op = [1, 0, 0]
-    else:
-        kt_arr_op = [0, t_start, t_erase_end, 1]
-        val_arr_op = [0, 1, 0, 0]
-        
-    kt_str_op = ";".join(f"{x:.4f}" for x in kt_arr_op)
-    val_str_op = ";".join(str(x) for x in val_arr_op)
-    
-    svg.append(f'<clipPath id="clip{i}">')
-    svg.append(f'  <rect x="270" y="0" width="0" height="50">')
-    svg.append(f'    <animate attributeName="width" values="{val_str}" keyTimes="{kt_str}" dur="{total_duration}s" fill="freeze" repeatCount="indefinite" />')
-    svg.append(f'  </rect>')
-    svg.append(f'</clipPath>')
-    
-    svg.append(f'<text x="270" y="35" class="text" clip-path="url(#clip{i})" opacity="0">')
-    svg.append(f'  <animate attributeName="opacity" values="{val_str_op}" keyTimes="{kt_str_op}" calcMode="discrete" dur="{total_duration}s" repeatCount="indefinite" />')
-    svg.append(f'  {line}')
-    svg.append(f'</text>')
+    t_current += PAUSE_TIME
 
-svg.append('<rect x="270" y="12" width="12" height="28" fill="#00E5FF">')
-values = []
-keyTimes = []
+# Ensure last time is exactly 1
+clip_times[-1] = "1"
+cursor_times[-1] = "1"
+
+clip_val_str = ";".join(clip_values)
+clip_time_str = ";".join(clip_times)
+cursor_val_str = ";".join(cursor_values)
+cursor_time_str = ";".join(cursor_times)
+
+svg.append('<clipPath id="type-clip">')
+svg.append(f'  <rect x="{START_X}" y="0" width="0" height="50">')
+svg.append(f'    <animate attributeName="width" values="{clip_val_str}" keyTimes="{clip_time_str}" dur="{total_dur:.3f}s" calcMode="discrete" repeatCount="indefinite" />')
+svg.append('  </rect>')
+svg.append('</clipPath>')
+
+svg.append('<g clip-path="url(#type-clip)">')
+
+t_current = 0.0
 for i, line in enumerate(lines):
-    line_width = len(line) * char_width
-    t_start = i / len(lines)
-    t_type_end = (i + 0.25) / len(lines)
-    t_hold_end = (i + 0.75) / len(lines)
-    t_erase_end = (i + 0.90) / len(lines)
+    L = len(line)
+    dur_this = L * TYPE_SPEED + HOLD_TIME + L * ERASE_SPEED + PAUSE_TIME
     
-    values.extend([0, line_width, line_width, 0])
-    keyTimes.extend([t_start, t_type_end, t_hold_end, t_erase_end])
+    t_start = t_current
+    t_end = t_current + dur_this
+    
+    t_start_norm = t_start / total_dur
+    t_end_norm = t_end / total_dur
+    
+    # We use discrete display animation so they don't overlap
+    if i == 0:
+        times = [0, t_end_norm, 1]
+        vals = ["inline", "none", "none"]
+    elif i == len(lines) - 1:
+        times = [0, t_start_norm, 1]
+        vals = ["none", "inline", "inline"]
+    else:
+        times = [0, t_start_norm, t_end_norm, 1]
+        vals = ["none", "inline", "none", "none"]
+        
+    times_str = ";".join([f"{x:.4f}" for x in times])
+    vals_str = ";".join(vals)
+    
+    svg.append(f'  <text x="{START_X}" y="35" class="text" display="none">')
+    svg.append(f'    <animate attributeName="display" values="{vals_str}" keyTimes="{times_str}" dur="{total_dur:.3f}s" calcMode="discrete" repeatCount="indefinite" />')
+    svg.append(f'    {line}')
+    svg.append('  </text>')
+    
+    t_current += dur_this
 
-values_str = ";".join([str(v+270) for v in values]) + f";{270}"
-keyTimes[-1] = 0.999 # just avoiding 1
-keyTimes_str = ";".join([f"{kt:.4f}" for kt in keyTimes]) + ";1"
+svg.append('</g>')
 
-svg.append(f'<animate attributeName="x" values="{values_str}" keyTimes="{keyTimes_str}" dur="{total_duration}s" repeatCount="indefinite"/>')
-svg.append(f'<animate attributeName="opacity" values="1;0;1;0" keyTimes="0;0.5;0.51;1" dur="0.8s" repeatCount="indefinite"/>')
+svg.append(f'<rect x="{START_X}" y="12" width="12" height="28" class="cursor">')
+svg.append(f'  <animate attributeName="x" values="{cursor_val_str}" keyTimes="{cursor_time_str}" dur="{total_dur:.3f}s" calcMode="discrete" repeatCount="indefinite" />')
+svg.append(f'  <animate attributeName="opacity" values="1;0;1;0" keyTimes="0;0.5;0.51;1" dur="0.8s" repeatCount="indefinite" />')
 svg.append('</rect>')
 
 svg.append('</svg>')
 
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 with open(OUT, "w") as f:
-    f.write("\\n".join(svg))
+    f.write("\n".join(svg))
